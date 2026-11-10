@@ -1,0 +1,57 @@
+{
+  "Clinic list page": {
+    "prefix": "clinhead",
+    "description": "config, search filter, list query, COUNT total",
+    "body": [
+      "<?php",
+      "require_once __DIR__ . \"/includes/config.php\";",
+      "global \\$conn;",
+      "",
+      "\\$q = trim(\\$_GET[\"q\"] ?? \"\");",
+      "\\$where = \"\";",
+      "if (\\$q !== \"\") {",
+      "    \\$like = mysqli_real_escape_string(\\$conn, \\$q);",
+      "    \\$where = \"WHERE ${1:nameCol1} LIKE '%\\$like%' OR ${2:nameCol2} LIKE '%\\$like%'\";",
+      "}",
+      "",
+      "\\$sql = \"SELECT * FROM `${3:Table}` \\$where\";",
+      "\\$result = mysqli_query(\\$conn, \\$sql);",
+      "",
+      "\\$count = mysqli_fetch_assoc(mysqli_query(\\$conn, \"SELECT COUNT(*) AS total FROM `${3:Table}` \\$where\"));",
+      "?>",
+      "<p class=\"text-muted\">Total ${4:records}: <?= \\$count[\"total\"] ?></p>"
+    ]
+  },
+  "Clinic select dropdown": {
+    "prefix": "clindrop",
+    "description": "FK select built from a mysqli result",
+    "body": [
+      "<label for=\"${1:fkCol}\" class=\"form-label\">${2:Label}</label>",
+      "<select id=\"${1:fkCol}\" name=\"${1:fkCol}\" class=\"form-select\" required>",
+      "    <option value=\"\">- ${3:choose one} -</option>",
+      "    <?php while (\\$opt = mysqli_fetch_assoc(\\$${4:options})) { ?>",
+      "        <option value=\"<?= \\$opt[\"${1:fkCol}\"] ?>\"><?= \\$opt[\"${5:labelCol1}\"] ?> <?= \\$opt[\"${6:labelCol2}\"] ?></option>",
+      "    <?php } ?>",
+      "</select>"
+    ]
+  },
+  "Clinic table rows": {
+    "prefix": "clinrows",
+    "description": "tbody loop with mirrored ID and edit/delete links",
+    "body": [
+      "<tbody>",
+      "<?php while (\\$row = mysqli_fetch_assoc(\\$result)) { ?>",
+      "    <tr>",
+      "        <td><?= \\$row[\"${1:idCol}\"] ?></td>",
+      "        <td><?= \\$row[\"${2:colA}\"] ?></td>",
+      "        <td><?= \\$row[\"${3:colB}\"] ?></td>",
+      "        <td>",
+      "            <a href=\"${4:item_edit.php}?updateid=<?= \\$row[\"${1:idCol}\"] ?>\" class=\"btn btn-primary btn-sm\">UPDATE</a>",
+      "            <a href=\"${5:item_delete.php}?deleteid=<?= \\$row[\"${1:idCol}\"] ?>\" class=\"btn btn-danger btn-sm\">DELETE</a>",
+      "        </td>",
+      "    </tr>",
+      "<?php } ?>",
+      "</tbody>"
+    ]
+  }
+}
