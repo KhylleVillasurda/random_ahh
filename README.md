@@ -8,6 +8,34 @@ Works in **VS Code** and **VSCodium** — same snippet engine, same file format.
 
 ---
 
+## Quick start — new machine in 8 steps
+
+1. **Files** → `C:\xampp\htdocs\<YourFamilyName>\`
+2. **XAMPP Control Panel** → Start **Apache**, Start **MySQL** (both green)
+3. **Edit** `includes/config.php` → `root` with an **empty** password
+4. **Import the DB** → `http://localhost/phpmyadmin` → create `clinic_database` → **Import**
+5. **Strip leading `/`** from every `href="assets/..."` in your pages
+6. **Open** `http://localhost/<YourFamilyName>/`
+7. **Snippets** → copy `php.code-snippets` into your editor's `User\snippets\` folder, restart
+8. **Verify** → `Ctrl+Shift+P` → `Insert Snippet…` should list `Clinic create form`
+
+If something fails, jump to [Diagnosing connectivity](#diagnosing-connectivity).
+
+---
+
+## The three things you start
+
+| What | How | URL / command |
+|---|---|---|
+| **XAMPP** (Apache + MySQL) | Control Panel → Start Apache, Start MySQL | `http://localhost/<Folder>/` |
+| **phpMyAdmin** | needs Apache + MySQL already running | `http://localhost/phpmyadmin` — user `root`, password blank |
+| **PHP built-in server** | run inside the project folder | `php -S localhost:8001` (Windows: `C:\xampp\php\php.exe -S localhost:8001`) |
+
+Order matters: MySQL before phpMyAdmin, Apache before `localhost/<Folder>/`.
+`php -S` needs MySQL too, but not Apache.
+
+---
+
 ## Install
 
 ### Linux — VSCodium (Flatpak)
