@@ -54,6 +54,7 @@ create form"). If they appear there, the file is loaded.
 | `clinrows` | `<tbody>` while-loop with UPDATE/DELETE links |
 | `clincreate` | full "add" page: FK dropdown query + INSERT + form |
 | `clindrop` | standalone FK `<select>` from a mysqli result |
+| `clinsum` | `SUM(column)` total, displayed with `number_format` |
 | `dbconn` | `mysqli_connect` + charset, XAMPP defaults |
 | `html5b` | HTML5 page shell with Bootstrap container |
 
@@ -101,6 +102,8 @@ the line between `</thead>` and `</table>` where `clinrows` goes.
 **`clindrop`** — `1` FK column (4×), `2` label, `3` placeholder option text,
 `4` result variable, `5`/`6` label columns.
 
+**`clinsum`** — `1` the amount column, `2` the table.
+
 **`dbconn`** — `1` database name.
 **`html5b`** — `1` page title.
 
@@ -143,6 +146,48 @@ Still typed by hand, and worth remembering because these are the marks:
 - Duplicate-ID check before INSERT
 - Delete confirmation
 - The five inquiry queries
+
+---
+
+## Aggregates beyond COUNT
+
+The exam only names `COUNT`, but every aggregate has the same shape:
+
+| Function | Returns | On an empty result |
+|---|---|---|
+| `COUNT(*)` | number of rows | `0` |
+| `SUM(col)` | total | `NULL` |
+| `AVG(col)` | average | `NULL` |
+| `MIN(col)` / `MAX(col)` | smallest / largest | `NULL` |
+
+**The gotcha:** `COUNT` returns `0`, the others return `NULL`. So a SUM over
+zero rows is `null`, not `0`, and PHP renders it as an empty string.
+
+Guard it in PHP:
+
+```php
+<?= number_format($total["total"] ?? 0, 2) ?>
+```
+
+or in SQL:
+
+```sql
+SELECT COALESCE(SUM(amount), 0) AS total FROM sales
+```
+
+**Money:** store it as `DECIMAL(10,2)`, never `FLOAT`/`DOUBLE`. Binary floats
+can't represent `0.10` exactly and totals drift. Sum the DECIMAL, format only at
+display time with `number_format(value, 2)`.
+
+**Filtering groups:** `WHERE` filters rows *before* grouping, `HAVING` filters
+the groups *after*.
+
+```sql
+SELECT docID, SUM(fee) AS total
+FROM Consultation
+GROUP BY docID
+HAVING SUM(fee) > 1000
+```
 
 ---
 

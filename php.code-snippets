@@ -133,6 +133,16 @@
       "</select>"
     ]
   },
+  "Clinic sum total": {
+    "prefix": "clinsum",
+    "description": "SUM of a column, displayed with number_format",
+    "body": [
+      "<?php",
+      "\\$total = mysqli_fetch_assoc(mysqli_query(\\$conn, \"SELECT SUM(`${1:amount}`) AS total FROM `${2:sales}`\"));",
+      "?>",
+      "<p>Total income: <?= number_format(\\$total[\"total\"] ?? 0, 2) ?></p>"
+    ]
+  },
   "DB connect": {
     "prefix": "dbconn",
     "description": "mysqli connection + charset (XAMPP defaults)",
