@@ -1,7 +1,7 @@
 {
   "Clinic list page": {
     "prefix": "clinhead",
-    "description": "config, search filter, list query, COUNT total",
+    "description": "config + search filter + list query + COUNT total",
     "body": [
       "<?php",
       "require_once __DIR__ . \"/includes/config.php\";",
@@ -22,17 +22,21 @@
       "<p class=\"text-muted\">Total ${4:records}: <?= \\$count[\"total\"] ?></p>"
     ]
   },
-  "Clinic select dropdown": {
-    "prefix": "clindrop",
-    "description": "FK select built from a mysqli result",
+  "Clinic table shell": {
+    "prefix": "clintable",
+    "description": "table + thead; cursor lands inside for clinrows",
     "body": [
-      "<label for=\"${1:fkCol}\" class=\"form-label\">${2:Label}</label>",
-      "<select id=\"${1:fkCol}\" name=\"${1:fkCol}\" class=\"form-select\" required>",
-      "    <option value=\"\">- ${3:choose one} -</option>",
-      "    <?php while (\\$opt = mysqli_fetch_assoc(\\$${4:options})) { ?>",
-      "        <option value=\"<?= \\$opt[\"${1:fkCol}\"] ?>\"><?= \\$opt[\"${5:labelCol1}\"] ?> <?= \\$opt[\"${6:labelCol2}\"] ?></option>",
-      "    <?php } ?>",
-      "</select>"
+      "<table class=\"table\">",
+      "    <thead>",
+      "        <tr>",
+      "            <th>${1:ID}</th>",
+      "            <th>${2:colA}</th>",
+      "            <th>${3:colB}</th>",
+      "            <th>Actions</th>",
+      "        </tr>",
+      "    </thead>",
+      "    $0",
+      "</table>"
     ]
   },
   "Clinic table rows": {
@@ -52,6 +56,115 @@
       "    </tr>",
       "<?php } ?>",
       "</tbody>"
+    ]
+  },
+  "Clinic create form": {
+    "prefix": "clincreate",
+    "description": "full add page: FK dropdown query + insert + form",
+    "body": [
+      "<?php",
+      "require_once __DIR__ . \"/includes/config.php\";",
+      "global \\$conn;",
+      "",
+      "\\$options = mysqli_query(\\$conn, \"SELECT ${1:fkCol}, ${2:labelCol1}, ${3:labelCol2} FROM `${4:ParentTable}` ORDER BY ${2:labelCol1}\");",
+      "",
+      "\\$message = \"\";",
+      "if (isset(\\$_POST[\"submit\"])) {",
+      "    \\$field1 = \\$_POST[\"${5:field1}\"];",
+      "    \\$field2 = \\$_POST[\"${6:field2}\"];",
+      "    \\$fkID   = \\$_POST[\"${1:fkCol}\"];",
+      "",
+      "    \\$sql = \"INSERT INTO `${7:Table}` (${5:field1}, ${6:field2}, ${1:fkCol})",
+      "            VALUES ('\\$field1', '\\$field2', '\\$fkID')\";",
+      "    if (mysqli_query(\\$conn, \\$sql)) {",
+      "        header(\"location: ${8:list.php}\");",
+      "        exit;",
+      "    }",
+      "    \\$message = mysqli_error(\\$conn);",
+      "}",
+      "?>",
+      "<!DOCTYPE html>",
+      "<html lang=\"en\" data-bs-theme=\"dark\">",
+      "<head>",
+      "    <meta charset=\"UTF-8\">",
+      "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+      "    <title>Add ${9:Record}</title>",
+      "    <link rel=\"stylesheet\" href=\"assets/bootstrap.css\">",
+      "</head>",
+      "<body>",
+      "<div class=\"container mt-4\">",
+      "    <h1>Add ${9:Record}</h1>",
+      "    <?php if (\\$message !== \"\") { ?>",
+      "        <div class=\"alert alert-danger\"><?= \\$message ?></div>",
+      "    <?php } ?>",
+      "    <form method=\"POST\" class=\"rounded\">",
+      "        <label for=\"${5:field1}\" class=\"form-label\">${10:Field 1}</label>",
+      "        <input id=\"${5:field1}\" name=\"${5:field1}\" class=\"form-control\" required>",
+      "",
+      "        <label for=\"${6:field2}\" class=\"form-label\">${11:Field 2}</label>",
+      "        <input id=\"${6:field2}\" name=\"${6:field2}\" class=\"form-control\" required>",
+      "",
+      "        <label for=\"${1:fkCol}\" class=\"form-label\">${12:Label}</label>",
+      "        <select id=\"${1:fkCol}\" name=\"${1:fkCol}\" class=\"form-select\" required>",
+      "            <option value=\"\">- choose one -</option>",
+      "            <?php while (\\$opt = mysqli_fetch_assoc(\\$options)) { ?>",
+      "                <option value=\"<?= \\$opt[\"${1:fkCol}\"] ?>\"><?= \\$opt[\"${2:labelCol1}\"] ?> <?= \\$opt[\"${3:labelCol2}\"] ?></option>",
+      "            <?php } ?>",
+      "        </select>",
+      "",
+      "        <button type=\"submit\" name=\"submit\" class=\"btn btn-primary mt-2\">Save</button>",
+      "        <a href=\"${8:list.php}\" class=\"btn btn-secondary mt-2\">Cancel</a>",
+      "    </form>",
+      "</div>",
+      "</body>",
+      "</html>"
+    ]
+  },
+  "Clinic select dropdown": {
+    "prefix": "clindrop",
+    "description": "FK select built from a mysqli result",
+    "body": [
+      "<label for=\"${1:fkCol}\" class=\"form-label\">${2:Label}</label>",
+      "<select id=\"${1:fkCol}\" name=\"${1:fkCol}\" class=\"form-select\" required>",
+      "    <option value=\"\">- ${3:choose one} -</option>",
+      "    <?php while (\\$opt = mysqli_fetch_assoc(\\$${4:options})) { ?>",
+      "        <option value=\"<?= \\$opt[\"${1:fkCol}\"] ?>\"><?= \\$opt[\"${5:labelCol1}\"] ?> <?= \\$opt[\"${6:labelCol2}\"] ?></option>",
+      "    <?php } ?>",
+      "</select>"
+    ]
+  },
+  "DB connect": {
+    "prefix": "dbconn",
+    "description": "mysqli connection + charset (XAMPP defaults)",
+    "body": [
+      "<?php",
+      "session_start();",
+      "\\$conn = mysqli_connect(\"localhost\", \"root\", \"\", \"${1:db_name}\");",
+      "if (!\\$conn) {",
+      "    die(\"Connection failed: \" . mysqli_connect_error());",
+      "}",
+      "mysqli_set_charset(\\$conn, \"utf8mb4\");",
+      "$0"
+    ]
+  },
+  "HTML + Bootstrap page": {
+    "prefix": "html5b",
+    "description": "HTML5 shell with Bootstrap 5 container",
+    "body": [
+      "<!DOCTYPE html>",
+      "<html lang=\"en\">",
+      "<head>",
+      "    <meta charset=\"UTF-8\">",
+      "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">",
+      "    <title>${1:Title}</title>",
+      "    <link rel=\"stylesheet\" href=\"assets/bootstrap.css\">",
+      "</head>",
+      "<body>",
+      "<div class=\"container mt-4\">",
+      "    $0",
+      "</div>",
+      "</body>",
+      "</html>"
     ]
   }
 }
